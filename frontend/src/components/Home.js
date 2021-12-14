@@ -4,6 +4,8 @@ import "./Home.css";
 // import Logo from './qq.png'
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { orange } from "@mui/material/colors";
+import "./predictionTable.css";
+import PredictionTable from "./PredictionTable";
 function Home() {
   const iconStyl = { fontSize: 35, color: "orange" };
   return (
@@ -21,11 +23,10 @@ function Home() {
         </div>
       </div> */}
       <div>
-          <Navbar/>
+        <Navbar />
       </div>
-      <div className="home_content">
-        <div className="home_graph">this is the graph</div>
-        <div className="home_StockList">this is the stock list</div>
+      <div>
+        <PredictionTable />
       </div>
     </div>
   );
