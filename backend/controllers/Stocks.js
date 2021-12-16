@@ -3,15 +3,20 @@ import checkEntry from '../models/checkEntries.js';
 import yahooFinance from 'yahoo-finance'; 
 import cts from 'check-ticker-symbol';
 import { Sequelize } from 'sequelize';
+import User from '../models/userModel.js';
 
 // Refresh button next to each entry. Still work in progress.
 export const checkUserEntry = async(req, res) => {
     try {
+        const user = await User.findOne({where: {email: req.user.email} });
+        const userID = user.userID; 
+        console.log("userID: " + userID); 
+        const {entryID} = req.body; 
         // SELECT currentPrice, WHERE userID = this.userID AND expirationAT < currentDate
         const entry = await stockEntry.findAll({
             where: {
-                userID: req.params.userID,
-                entryID: req.params.entryID
+                userID: userID,
+                entryID: entryID 
                 /*
                 expirationAt: {
                     [Op.lt]:
@@ -22,7 +27,7 @@ export const checkUserEntry = async(req, res) => {
         });
         const check = await checkEntry.findAll({
             where: {
-                entryID: req.params.entryID 
+                entryID: entryID 
             }
         });
         // Get acutalPrice
@@ -73,11 +78,14 @@ export const checkUserEntry = async(req, res) => {
 // View old stock entries that already at least 1 day expired. Work in progress.
 export const oldStockEntries = async(req, res) => {
     try {
+        const user = await User.findOne({where: {email: req.user.email} });
+        const userID = user.userID; 
+        console.log("userID: " + userID); 
         // 1 day = 86,400,000 ms
         const list = await stockEntry.findAll({
             attributes: ['tickerName', 'prediction', 'timeFrame'],
             where: {
-                userID: req.params.userID,
+                userID: userID,
                 expirationAt: {
                     [Op.lte]:
                     Sequelize.fn('NOW').getTime() - 86400000,
@@ -92,10 +100,13 @@ export const oldStockEntries = async(req, res) => {
 // View current user stock list. Still work in progress
 export const userStockList = async(req, res) => {
     try {
+        const user = await User.findOne({where: {email: req.user.email} });
+        const userID = user.userID; 
+        console.log("userID: " + userID); 
         const list = await stockEntry.findAll({
             attributes: ['tickerName', 'prediciton', 'timeFrame'],
             where: {
-                userID: req.params.id,
+                userID: userID,
                 expirationAt: {
                     [Op.gte]:
                     Sequelize.fn('NOW').getTime() - 86400000
@@ -114,19 +125,19 @@ export const userStockList = async(req, res) => {
 // Add user's prediciton entry to database
 export const addStockEntry = async(req, res) => {
     try {
-        const {userID, tickerName, prediction, timeFrame, confidentLevel, description, priceRange} = req.body; 
+        const {tickerName, prediction, timeFrame, confidentLevel, description, priceRange} = req.body; 
 
         // Set userID to stored user.id  
-            //const userID = userID; 
+        const user = await User.findOne({where: {email: req.user.email} });
+        const userID = user.userID; 
+        console.log("userID: " + userID); 
+
         // Check if tickerName is valid 
-        /*
-        */
        if(!cts.valid(tickerName))
        {
            return res.status(404).json({message: "Ticker name is invalid."});
        }
        // Check if entry has same tickerName + timeFrame
-       /*
        const duplicatEntry = await stockEntry.findOne({
            attributes: ['tickerName', 'timeFrame'],
            where: {
@@ -136,16 +147,15 @@ export const addStockEntry = async(req, res) => {
 
             }}).catch(
            (err) => {
-               console.log("Error: ", err); 
+               console.log("Error: ", err);
+
            }
        );
        if(duplicatEntry)
         {
+            console.log("Duplicate entry detected");
             return res.status(404).json({message: "Entry already exist"});
-        }
-        */
-
-        // ***Make sure we get userID from jswebtoken 
+        } 
 
         // Make sure prediction has valid input
         if(prediction != "Bullish" && prediction != "Bearish")
