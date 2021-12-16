@@ -32,8 +32,8 @@ router.get('/trendingTickers', getTrendingTickers);
 router.get('/checkUserEntry', validateToken, checkUserEntry);
 router.get('/oldStockEntries', validateToken, oldStockEntries);
 router.post('/entry/ticker', validateToken, addStockEntry);
+router.get('/:id/stocklist', validateToken, userStockList); 
 router.get('/yahooRealTime', yahooRealTime); 
-router.get('/:id/stocklist', userStockList); 
 router.get('/stock/:symbol', getHistorical); 
 
 // User Routes
